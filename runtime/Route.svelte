@@ -58,6 +58,7 @@
   }
 
   $: [layout, ...remainingLayouts] = layouts
+  $: console.log('layout', layouts[0])
 
   /** @param {HTMLElement} el */
   function setParent(el) {
@@ -68,15 +69,23 @@
   function onComponentLoaded(componentFile) {
     /** @type {Context} */
     const parentContext = get(parentContextStore)
+    const reloadOnParamChange =
+      layout.meta && layout.meta['reload-on-param-change']
+    const paramSuffix = reloadOnParamChange ? JSON.stringify(layout.param) : ''
+
+    console.log('layout2', layout)
+    // console.log(JSON.stringify(layout.param))
 
     scopedSync = { ...scoped }
     lastLayout = layout
     if (remainingLayouts.length === 0) onLastComponentLoaded()
+
     const ctx = {
       layout: isDecorator ? parentContext.layout : layout,
       component: layout,
       route: $route,
       componentFile,
+      identifier: layout.path + paramSuffix,
       child: isDecorator
         ? parentContext.child
         : get(context) && get(context).child,
@@ -85,7 +94,7 @@
     if (isRoot) rootContext.set(ctx)
 
     if (parentContext && !isDecorator)
-      parentContextStore.update(store => {
+      parentContextStore.update((store) => {
         store.child = layout || store.child
         return store
       })
@@ -101,7 +110,7 @@
   $: setComponent(layout)
 
   async function onLastComponentLoaded() {
-    afterPageLoad._hooks.forEach(hook => hook(layout.api))
+    afterPageLoad._hooks.forEach((hook) => hook(layout.api))
     await tick()
     handleScroll(parentElement)
     if (!window['routify'].appLoaded) {
@@ -119,18 +128,21 @@
 
 {#if $context}
   {#if $context.component.isLayout === false}
-    {#each [$context] as { component, componentFile } (component.path)}
-      <svelte:component
-        this={componentFile}
-        let:scoped={scopeToChild}
-        let:decorator
-        {scoped}
-        {scopedSync}
-        {...layout.param || {}} />
+    {#each [$context] as { identifier, componentFile } (identifier)}
+      <div style="background: red">
+        <h1>{identifier}</h1>
+        <!-- <svelte:component
+          this={componentFile}
+          let:scoped={scopeToChild}
+          let:decorator
+          {scoped}
+          {scopedSync}
+          {...layout.param || {}} /> -->
+      </div>
     {/each}
     <!-- we need to check for remaining layouts, in case this component is a destroyed layout -->
   {:else if remainingLayouts.length}
-    {#each [$context] as { component, componentFile } (component.path)}
+    {#each [$context] as { identifier, componentFile } (identifier)}
       <svelte:component
         this={componentFile}
         let:scoped={scopeToChild}
