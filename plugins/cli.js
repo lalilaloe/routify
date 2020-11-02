@@ -69,6 +69,8 @@ program
 program
   .command('export')
   .option('    --dist-dir <path>', 'Dist folder', defaults.distDir)
+  .option('    --input-file <file>', 'Script file, defaults to bundle.js', defaults.distFile)
+  .option('    --entry-file <file>', 'Entry file, defaults to __app.html', defaults.entryFile)
   .option('-r, --routify-dir <path>', 'Routify dir', defaults.routifyDir)
   .option('i,   --convert-to-index', 'Output foo.svelte to /foo/index.html', defaults.convertToIndex)
   // todo implement default basepath - avoid extra iteration

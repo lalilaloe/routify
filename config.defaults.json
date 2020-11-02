@@ -7,5 +7,7 @@
   "singleBuild": false,
   "noHashScroll": false,
   "extensions": "html,svelte,md,svx",
-  "distDir": "dist"
+  "distDir": "dist",
+  "distFile": "bundle.js",
+  "entryFile": "__app.html"
 }
